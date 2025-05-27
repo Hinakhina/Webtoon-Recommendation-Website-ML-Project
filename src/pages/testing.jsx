@@ -1,46 +1,51 @@
 "use client";
-import React, { useState } from "react";
-import "./login.css";
+import React, { useEffect, useState } from "react";
+import "./questionnare.css";
 
-export default function LoginPage() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+const genreList = [
+  "Action", "Romance", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Thriller",
+  "Slice of Life", "Supernatural", "Sci-Fi", "Adventure", "Historical"
+];
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!username || !password) return setError("All fields are required.");
+export default function Questionnare() {
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const userId = 1; // You should dynamically store this after login
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      if (data.isNew) window.location.href = "/questionnare";
-      else window.location.href = "/homepage";
-    } else {
-      setError(data.message);
+  const toggleGenre = (genre) => {
+    if (selectedGenres.includes(genre)) {
+      setSelectedGenres(selectedGenres.filter((g) => g !== genre));
+    } else if (selectedGenres.length < 3) {
+      setSelectedGenres([...selectedGenres, genre]);
     }
   };
 
+  const handleContinue = async () => {
+    console.log("Selected Genres:", selectedGenres);
+    const res = await fetch("/api/user/genre", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, genres: selectedGenres })
+    });
+    if (res.ok) window.location.href = "/homepage";
+  };
+
   return (
-    <div className="container-form">
-      <form onSubmit={handleSubmit}>
-        <h3>Log In</h3>
-        <label>Username</label><br />
-        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required /><br /><br />
-
-        <label>Password</label><br />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /><br /><br />
-
-        {error && <p style={{ color: "red" }}><b>{error}</b></p>}
-
-        <input type="submit" value="Submit" className="submit-button" />
-        <p>Don't have an account? <a href="/signup">Sign up</a></p>
-      </form>
+    <div className="container">
+      <h1>Pick Your Top 3 Favorite Genres</h1>
+      <div className="genres" id="genres">
+        {genreList.map((genre) => (
+          <button
+            key={genre}
+            className={`genre-btn ${selectedGenres.includes(genre) ? "selected" : ""}`}
+            onClick={() => toggleGenre(genre)}
+          >
+            {genre}
+          </button>
+        ))}
+      </div>
+      <button id="submitBtn" onClick={handleContinue} disabled={selectedGenres.length !== 3}>
+        Continue
+      </button>
     </div>
   );
 }

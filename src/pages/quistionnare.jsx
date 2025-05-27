@@ -1,15 +1,27 @@
-"use client"; // needed if you're using the App Router
+"use client";
+import React, { useState, useEffect } from "react";
+import { useUser } from "@/context/UserContext";
+import "./questionnare.css";
 
-import React, { useEffect, useState } from "react";
-import "./questionnare.css"; // adjust path as needed
-
-const genreList = [
-  "Action", "Romance", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Thriller",
-  "Slice of Life", "Supernatural", "Sci-Fi", "Adventure", "Historical"
+const genres = [
+  "Action", "Adventure", "Comedy", "Drama", "Fantasy", 
+  "Horror", "Slice of Life", "Romance", "Sci-Fi", "Thriller", 
+  "Superhero", "Historical", "Sports", "Supernatural", "Graphic Novel",
+  "Informative", "Heartwarming"
 ];
 
 export default function Questionnare() {
+  const { userId } = useUser();
   const [selectedGenres, setSelectedGenres] = useState([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("selectedGenres");
+    if (saved) setSelectedGenres(JSON.parse(saved));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("selectedGenres", JSON.stringify(selectedGenres));
+  }, [selectedGenres]);
 
   const toggleGenre = (genre) => {
     if (selectedGenres.includes(genre)) {
@@ -19,17 +31,23 @@ export default function Questionnare() {
     }
   };
 
-  const handleContinue = () => {
-    console.log("Selected Genres:", selectedGenres);
-    // You could POST to /api/user/genre here with userId if needed
-    window.location.href = "/homepage"; // or wherever the main page is
+  const handleContinue = async () => {
+    const res = await fetch("/api/user/genre", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, genres: selectedGenres })
+    });
+    if (res.ok) {
+      localStorage.removeItem("selectedGenres");
+      window.location.href = "/homepage";
+    }
   };
 
   return (
     <div className="container">
       <h1>Pick Your Top 3 Favorite Genres</h1>
-      <div className="genres" id="genres">
-        {genreList.map((genre) => (
+      <div className="genres">
+        {genres.map((genre) => (
           <button
             key={genre}
             className={`genre-btn ${selectedGenres.includes(genre) ? "selected" : ""}`}
@@ -41,6 +59,7 @@ export default function Questionnare() {
       </div>
       <button
         id="submitBtn"
+        className={selectedGenres.length === 3 ? "active" : ""}
         disabled={selectedGenres.length !== 3}
         onClick={handleContinue}
       >
