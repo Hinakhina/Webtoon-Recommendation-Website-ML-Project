@@ -1,11 +1,32 @@
-import { db } from '../../db/db.js';
+import { exec } from "child_process";
+import path from "path";
+import { NextResponse } from "next/server"; // For App Router
 
-export default async function handler(req, res) {
-  const { userId, genres } = req.body;
-  await Promise.all(genres.map(genre =>
-    db.query("INSERT INTO user_genres (user_id, genre) VALUES (?, ?)", [userId, genre])
-  ));
+export async function POST(req) {
+  const body = await req.json();
+  const { userId } = body;
 
-  await db.query("UPDATE users SET is_new = FALSE WHERE id = ?", [userId]);
-  res.status(200).json({ message: 'Genres saved' });
+  if (!userId) {
+    return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+  }
+
+  const scriptPath = path.resolve("app/ml/run_model.py");
+  const command = `python ${scriptPath} ${userId}`;
+
+  return new Promise((resolve) => {
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error("Python error:", stderr);
+        return resolve(NextResponse.json({ error: "Python script error" }, { status: 500 }));
+      }
+
+      try {
+        const parsed = JSON.parse(stdout);
+        return resolve(NextResponse.json(parsed));
+      } catch (e) {
+        console.error("Failed to parse output:", stdout);
+        return resolve(NextResponse.json({ error: "Invalid JSON from Python" }, { status: 500 }));
+      }
+    });
+  });
 }
