@@ -1,0 +1,208 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #2d3250;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 80%;
+    margin: 0 auto;
+
+}
+
+
+/* HEADER */
+
+/* #name{
+    margin: 20px;
+    font-family: 'Lucida Sans Regular';
+    color: #ebc06a;
+    text-align: center;
+}
+
+#tagline{
+    margin :20px;
+    font-family: 'Lucida Sans';
+    color:#CA7FF5;
+    text-align: center;
+} */
+
+/* #line{
+    color: #48ACE4;
+} */
+
+
+
+
+
+/* untuk home, register, subscription, etc */
+
+/* nav ul li a {
+    text-decoration: none;
+    color: #4e086e;
+    
+} */
+/* FORM CONTENT */
+
+.container-form{
+    padding: 20px;
+    border-radius: 5px;
+    display: flex;
+    /* flex-direction: row; */
+    flex-wrap: wrap;
+    width: auto;
+    font-family: 'Lucida Sans';
+    background-repeat:round;
+    background-blend-mode:lighten;
+    opacity: 90%;
+    height: 10vh;
+    justify-content: center;
+}
+
+.container-form h3{
+    width: 70%;
+    text-align: left;
+    padding: 10px;
+    /* background-image: url("Assets/porplebackground_HTMLregis.jpg"); */
+    border-radius: 25px;
+    /* background-color: #ffffff; */
+    color: #ffffff;
+    background-blend-mode: luminosity;
+}
+
+label{
+    margin-bottom: 50px;
+    color: #f9b17a;
+}
+
+#message{
+    color: #f9b17a;
+
+}
+
+input[type="text"], input[type="email"], input[type="tel"],
+input[type="password"] {
+    width: 70%;
+    padding: 5px;
+    margin: 10px;
+    margin-bottom: 10px;
+    border: 2px solid #2d3250;
+    border-radius: 10px;
+}
+
+#form{
+    /* background-color: #fdc4f9; */
+    margin: 20px;
+    padding: 30px;
+    border-radius: 40px;
+    width: 30%;
+    opacity: 100%;;
+    background-color: #676f9d;
+    /* background-image: url(Assets/PurpleSparklyBG_HTML.jpg);    background-blend-mode: hard-light; */
+}
+
+.submit-button{
+    margin: 20px;
+    width: 50%;
+    border: none;
+    padding: 10px;
+    background-color: #f9b17a;
+    color: #000000;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+
+.submit-button:hover{
+    background-color: #8c5b36;
+    color: #fffaff;
+}
+
+
+#error{
+    margin-top: 20px;
+    text-align: left;
+    color: #f9b17a;
+    display: none;
+}
+
+#register{
+    width: 70%;
+    padding: 5px;
+    margin: 10px;
+    margin-bottom: 10px;
+    color: #2d3250;
+
+}
+
+#register a {
+    color: #f9b17a;
+}
+
+
+
+
+
+/* for tablet & desktop */
+@media screen and (max-width: 1200px) {
+
+    .container {
+        width: 90%;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    nav ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 70px;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    nav ul li {
+        margin-bottom: 10px;
+    }
+
+}
+
+/* for mobile  */
+@media screen and (max-width: 768px) {
+    .container {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    header {
+        text-align: center;
+    }
+
+    nav ul {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    nav ul li {
+        margin-bottom: 5px;
+    }
+
+    .container-form{
+
+        height: auto;
+    }
+
+    #form{
+        height: auto;
+
+    }
+
+    h2{
+        width: auto;
+    }
+}

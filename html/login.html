@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="..\css\login.css">
+    <title>Log In to Webtoon Recommender</title>
+</head>
+<body>
+    <header>
+
+    </header>
+
+    <!-- content -->
+    <div class="container-form">
+        <form action="" id="form">
+            <h3>Log In</h3>
+
+            <!-- username -->
+            <label for="username">Username</label>
+            <br>
+            <input type="text" name="username" id="username" required>
+            <br><br>
+
+            <!-- password -->
+            <label for="password">Password</label>
+            <br>
+            <input type="password" name="password" id="password" required>
+            <br><br>
+
+            <!-- form password message -->
+            <div id="message">
+                <p><b>Password must contain: </p>
+                <ul>
+                    <li id="length" class="invalid">Min. 8 characters;</li>
+                    <li id="upper-lower" class="invalid">Uppercase and lowercase;</li>
+                    <li id="digit" class="invalid">Min. 1 digit.</li>
+                </b></ul>
+            </div>
+
+            <!-- submit -->
+            <p id="error"><b>Error. Please try again.</b></p>
+            <input type="submit" value="Submit" class="submit-button">
+            
+            <p id="register">Don't have an account? 
+                <a href="register.html">Sign up </a></p>
+
+
+        </form>
+
+    </div>
+    
+</body>
+<script src ="../js/login.js"></script>
+
+</html>
