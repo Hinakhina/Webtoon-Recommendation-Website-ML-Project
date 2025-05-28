@@ -11,6 +11,7 @@ export default function Homepage() {
 
   const [recommendedWebtoons, setRecommendedWebtoons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchInput, setSearchInput] = useState("");
 
@@ -35,7 +36,7 @@ export default function Homepage() {
         const data = await res.json();
         setRecommendedWebtoons(data);
       } catch (err) {
-        console.error("Error fetching recs:", err);
+        console.error("Error fetching recommendations:", err);
         setError("Something went wrong. Please try again later.");
       } finally {
         setLoading(false);
@@ -48,24 +49,29 @@ export default function Homepage() {
   const handleSearch = async () => {
     if (!searchInput.trim()) return;
 
+    setSearchLoading(true);
+    setError("");
+
     try {
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: searchInput, userId }),
+        body: JSON.stringify({ title: searchInput }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Webtoon not found");
+        setError(data.message || "Webtoon not found");
         return;
       }
 
       setRecommendedWebtoons(data);
     } catch (err) {
       console.error("Search failed:", err);
-      alert("Search failed. Please try again.");
+      setError("Search failed. Please try again.");
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -80,10 +86,10 @@ export default function Homepage() {
 
           <nav>
             <div className="topnav">
-              <a className="active" href="#">Home</a>
               <input
+                className="search-button"
                 type="text"
-                placeholder="Search for webtoon..."
+                placeholder="Search webtoon title..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
               />
@@ -95,7 +101,8 @@ export default function Homepage() {
 
       <div className="recommendation-section">
         <h2>Recommended Webtoons</h2>
-        {loading ? (
+
+        {loading || searchLoading ? (
           <p>Loading...</p>
         ) : error ? (
           <p style={{ color: "red" }}>{error}</p>

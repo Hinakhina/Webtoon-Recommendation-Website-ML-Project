@@ -101,6 +101,31 @@ body {
     /* background-image: url("Assets/PurpleBackground-_HTML.jpg"); */
 }
 
+.recommendation-section{
+    margin: 50px;
+    text-align: left;
+    font-family: 'Lucida Sans';
+    color: #f9b17a;
+}
+
+h3{
+    text-decoration: underline;
+}
+
+.webtoon-card{
+    margin: 10px;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    color: #ffffff;
+    background-color: #748ee4ca;
+    border-radius: 20px;
+}
+
+/* .search-button{
+    border-radius: 30px;
+} */
 
 /* for tablet & desktop */
 @media screen and (max-width: 1200px) {
