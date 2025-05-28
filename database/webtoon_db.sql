@@ -3,6 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
+-- Waktu pembuatan: 28 Bulan Mei 2025 pada 17.35
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.2.12
 
@@ -23,6 +24,26 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Struktur dari tabel `search_history`
+--
+
+CREATE TABLE `search_history` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `searched_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `search_history`
+--
+
+INSERT INTO `search_history` (`id`, `user_id`, `title`, `searched_at`) VALUES
+(1, 4, 'Ghost Teller', '2025-05-28 12:41:20');
+
+-- --------------------------------------------------------
+
+--
 -- Struktur dari tabel `users`
 --
 
@@ -33,6 +54,16 @@ CREATE TABLE `users` (
   `is_new` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data untuk tabel `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `password`, `is_new`) VALUES
+(1, 'Hina', '$2b$10$9mUzjmGiiNKCIxcPd3zlb..OVckbl5CsmoSmWi2bR2v04XEmVTVZ.', 0),
+(2, 'Kila', '$2b$10$tosIb6bUN7f3YdFZ29mtf.OB/.Vjk0Fhdrc7UMlVaETNjYFuFMbF6', 1),
+(3, 'Lina', '$2b$10$i3.AULg2Idla22Xn4YWIm.N1GQubEI9FLMT/KxMSbwZScCILIY/vi', 0),
+(4, 'Kuni', '$2b$10$0LW6d38NeYJhgNfCvAct6OZ56HKsmjrL1wmAnLzDIYiQx2roVLcLG', 0);
+
 -- --------------------------------------------------------
 
 --
@@ -41,9 +72,24 @@ CREATE TABLE `users` (
 
 CREATE TABLE `user_genres` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `genre` varchar(100) DEFAULT NULL
+  `user_id` int(11) NOT NULL,
+  `genre` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `user_genres`
+--
+
+INSERT INTO `user_genres` (`id`, `user_id`, `genre`) VALUES
+(1, 1, 'Action'),
+(2, 1, 'Adventure'),
+(3, 1, 'Fantasy'),
+(4, 3, 'Romance'),
+(5, 3, 'Slice of Life'),
+(6, 3, 'Drama'),
+(7, 4, 'Thriller'),
+(8, 4, 'Informative'),
+(9, 4, 'Horror');
 
 -- --------------------------------------------------------
 
@@ -896,6 +942,12 @@ INSERT INTO `webtoons` (`title_id`, `title`, `genre`, `authors`, `weekdays`, `le
 --
 
 --
+-- Indeks untuk tabel `search_history`
+--
+ALTER TABLE `search_history`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indeks untuk tabel `users`
 --
 ALTER TABLE `users`
@@ -920,16 +972,22 @@ ALTER TABLE `webtoons`
 --
 
 --
+-- AUTO_INCREMENT untuk tabel `search_history`
+--
+ALTER TABLE `search_history`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT untuk tabel `user_genres`
 --
 ALTER TABLE `user_genres`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
