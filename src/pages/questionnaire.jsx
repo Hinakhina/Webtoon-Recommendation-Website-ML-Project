@@ -11,7 +11,10 @@ const genres = [
 ];
 
 export default function Questionnaire() {
-  const { userId } = useUser();
+  const user = useUser();
+  if (!user) return <div>Loading context...</div>; // or redirect to login
+
+  const { userId } = user;
   const [selectedGenres, setSelectedGenres] = useState([]);
 
   useEffect(() => {

@@ -16,12 +16,14 @@ export async function POST(req) {
     // DEBUG connection before real insert
     await db.query("SELECT 1");
 
-    await db.query(
+    const [result] = await db.query(
       "INSERT INTO users (username, password) VALUES (?, ?)",
       [username, hashed]
     );
 
-    return NextResponse.json({ message: 'User registered' }, { status: 200 });
+    const userId = result.insertId;
+
+    return NextResponse.json({ userId, username, isNew: true }, { status: 200 });
 
   } catch (err) {
     console.error("SIGNUP ERROR:", err);
