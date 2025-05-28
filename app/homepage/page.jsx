@@ -1,0 +1,118 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useUser } from "../../src/context/userContext";
+import { useRouter } from "next/navigation";
+import "./homepage.css";
+
+export default function Homepage() {
+  const router = useRouter();
+  const { userId, username } = useUser();
+
+  const [recommendedWebtoons, setRecommendedWebtoons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+
+  useEffect(() => {
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
+
+    const fetchRecommendations = async () => {
+      try {
+        const res = await fetch("/api/recommend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch recommendations");
+        }
+
+        const data = await res.json();
+        setRecommendedWebtoons(data);
+      } catch (err) {
+        console.error("Error fetching recs:", err);
+        setError("Something went wrong. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecommendations();
+  }, [userId, router]);
+
+  const handleSearch = async () => {
+    if (!searchInput.trim()) return;
+
+    try {
+      const res = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: searchInput, userId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Webtoon not found");
+        return;
+      }
+
+      setRecommendedWebtoons(data);
+    } catch (err) {
+      console.error("Search failed:", err);
+      alert("Search failed. Please try again.");
+    }
+  };
+
+  return (
+    <div>
+      <header>
+        <div className="container-header">
+          <h1 id="name">Webtoon Recommendation System</h1>
+          <h4 id="tagline">
+            Webtoon Recommendations Just For You, {username || "Guest"}!
+          </h4>
+
+          <nav>
+            <div className="topnav">
+              <a className="active" href="#">Home</a>
+              <input
+                type="text"
+                placeholder="Search for webtoon..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+              <button onClick={handleSearch}>🔍</button>
+            </div>
+          </nav>
+        </div>
+      </header>
+
+      <div className="recommendation-section">
+        <h2>Recommended Webtoons</h2>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : (
+          <div className="results-grid">
+            {recommendedWebtoons.map((webtoon, i) => (
+              <div key={i} className="webtoon-card">
+                <h3>{webtoon.title}</h3>
+                <p><strong>Genre:</strong> {webtoon.genre}</p>
+                <p><strong>Author(s):</strong> {webtoon.authors}</p>
+                <p><strong>Rating:</strong> {webtoon.rating}</p>
+                <p><strong>Synopsis:</strong> {webtoon.synopsis}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
