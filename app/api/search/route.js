@@ -2,13 +2,12 @@ import { db } from "../../../lib/db";
 import { NextResponse } from "next/server";
 import { spawn } from "child_process";
 import path from "path";
-import fs from "fs";
 
 export async function POST(req) {
   try {
     const { title, userId } = await req.json();
 
-    // 1. Check if webtoon exists
+    // 1. Check title exists in webtoons
     const [rows] = await db.query(
       "SELECT title FROM webtoons WHERE title LIKE ? LIMIT 1",
       [`%${title}%`]
@@ -19,48 +18,42 @@ export async function POST(req) {
 
     const selectedTitle = rows[0].title;
 
-    // 2. Read or initialize user input file (simulating history)
-    const inputFilePath = "user_input_history.txt";
-    let history = [];
-    if (fs.existsSync(inputFilePath)) {
-      const lines = fs.readFileSync(inputFilePath, "utf-8").trim().split("\n");
-      history = lines
-        .filter((line) => line.startsWith(userId + ","))
-        .map((line) => line.split(",")[1]);
-    }
+    // 2. Insert into search_history table
+    await db.query(
+      "INSERT INTO search_history (user_id, title) VALUES (?, ?)",
+      [userId, selectedTitle]
+    );
 
-    if (!history.includes(selectedTitle)) {
-      history.push(selectedTitle);
-      fs.appendFileSync(inputFilePath, `${userId},${selectedTitle}\n`);
-    }
+    // 3. Get last 3 titles from DB
+    const [historyRows] = await db.query(
+      "SELECT title FROM search_history WHERE user_id = ? ORDER BY searched_at DESC LIMIT 3",
+      [userId]
+    );
 
-    const lastThreeTitles = history.slice(-3).join("|");
-    const modelScript = path.resolve("app/ml/run_model.py");
+    const lastThreeTitles = historyRows.map(row => row.title).join("|");
+
+    // 4. Run Python model with last three titles
+    const modelPath = path.resolve("app/ml/run_model.py");
 
     return new Promise((resolve) => {
-      const process = spawn("python", [modelScript, lastThreeTitles]);
+      const process = spawn("python", [modelPath, lastThreeTitles]);
 
       let output = "";
-      process.stdout.on("data", (data) => {
-        output += data.toString();
-      });
-
-      process.stderr.on("data", (data) => {
-        console.error("Model stderr:", data.toString());
-      });
+      process.stdout.on("data", (data) => output += data.toString());
+      process.stderr.on("data", (data) => console.error("Model stderr:", data.toString()));
 
       process.on("close", () => {
         try {
-          const result = JSON.parse(output);
-          resolve(NextResponse.json(result));
-        } catch (e) {
+          const json = JSON.parse(output);
+          resolve(NextResponse.json(json));
+        } catch (err) {
           console.error("Parse error:", output);
           resolve(NextResponse.json({ message: "Invalid model output" }, { status: 500 }));
         }
       });
     });
   } catch (err) {
-    console.error("Search route error:", err);
+    console.error("Search API error:", err);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }

@@ -117,30 +117,30 @@ def hybrid_recommendation(user_id, input_titles, top_n=10):
     return [item_labels[i] for i in top_items_idx]
 
 # Adaptif input menu
-user_history_file = 'user_input_history.txt'
-user_id = 'user_0'
-input_titles = []
+# user_history_file = 'user_input_history.txt'
+# user_id = 'user_0'
+# input_titles = []
 
-print("\n🎯 Sistem Rekomendasi Webtoon")
-genre_input = input("Masukkan genre favoritmu (e.g. romance, action): ").lower()
+# print("\n🎯 Sistem Rekomendasi Webtoon")
+# genre_input = input("Masukkan genre favoritmu (e.g. romance, action): ").lower()
 
-while True:
-    title = input("Masukkan judul Webtoon favoritmu (atau 'exit'): ")
-    if title.lower() == 'exit':
-        break
-    if title not in top_items['title'].values:
-        print(f"Judul '{title}' tidak ditemukan.")
-        continue
-    input_titles.append(title)
-    with open(user_history_file, 'a') as f:
-        f.write(f"{user_id},{title}\n")
+# while True:
+#     title = input("Masukkan judul Webtoon favoritmu (atau 'exit'): ")
+#     if title.lower() == 'exit':
+#         break
+#     if title not in top_items['title'].values:
+#         print(f"Judul '{title}' tidak ditemukan.")
+#         continue
+#     input_titles.append(title)
+#     with open(user_history_file, 'a') as f:
+#         f.write(f"{user_id},{title}\n")
 
-    if len(input_titles) < 3:
-        print("\n🔍 Rekomendasi awal (cold start):")
-        rekomendasi = content_based_recommendation(input_titles)
-    else:
-        print("\n🤖 Rekomendasi campuran (hybrid):")
-        rekomendasi = hybrid_recommendation(user_id, input_titles)
+#     if len(input_titles) < 3:
+#         print("\n🔍 Rekomendasi awal (cold start):")
+#         rekomendasi = content_based_recommendation(input_titles)
+#     else:
+#         print("\n🤖 Rekomendasi campuran (hybrid):")
+#         rekomendasi = hybrid_recommendation(user_id, input_titles)
 
-    for i, rec in enumerate(rekomendasi, 1):
-        print(f"{i}. {rec}")
+#     for i, rec in enumerate(rekomendasi, 1):
+#         print(f"{i}. {rec}")
