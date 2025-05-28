@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "csv-parser": "^3.2.0",
     "mysql2": "^3.14.1",
     "next": "15.3.2",

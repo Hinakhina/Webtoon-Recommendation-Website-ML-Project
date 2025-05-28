@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useUser } from "@/context/UserContext";
-import "./questionnare.css";
+import { useUser } from "../context/userContext";
+import "./questionnaire.css";
 
 const genres = [
   "Action", "Adventure", "Comedy", "Drama", "Fantasy", 
@@ -10,7 +10,7 @@ const genres = [
   "Informative", "Heartwarming"
 ];
 
-export default function Questionnare() {
+export default function Questionnaire() {
   const { userId } = useUser();
   const [selectedGenres, setSelectedGenres] = useState([]);
 

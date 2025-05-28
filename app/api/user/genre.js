@@ -1,4 +1,4 @@
-import { db } from '../../db/db.js';
+import { db } from '../../../lib/db.js';
 
 export default async function handler(req, res) {
   const { userId, genres } = req.body;

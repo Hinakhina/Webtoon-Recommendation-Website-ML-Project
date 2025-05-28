@@ -11,21 +11,27 @@ export default function LoginPage() {
     e.preventDefault();
     if (!username || !password) return setError("All fields are required.");
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
 
-    const data = await res.json();
-    if (res.ok) {
-      if (data.isNew) window.location.href = "/questionnare";
+      const text = await res.text(); // read raw response
+      if (!res.ok) {
+        return setError(`Login failed: ${text}`);
+      }
+
+      const data = JSON.parse(text);
+      if (data.isNew) window.location.href = "/questionnaire";
       else window.location.href = "/homepage";
-    } else {
-      setError(data.message);
+
+    } catch (err) {
+      setError("An unexpected error occurred.");
+      console.error(err);
     }
   };
-
   return (
     <div className="container-form">
       <form onSubmit={handleSubmit}>
@@ -39,7 +45,7 @@ export default function LoginPage() {
         {error && <p style={{ color: "red" }}><b>{error}</b></p>}
 
         <input type="submit" value="Submit" className="submit-button" />
-        <p>Don't have an account? <a href="/signup">Sign up</a></p>
+        <p>Don't have an account? <a href="/register">Sign up</a></p>
       </form>
     </div>
   );

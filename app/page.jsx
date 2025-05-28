@@ -1,25 +1,13 @@
 "use client";
-import { useState } from "react";
-import RecommendationPage from "../src/pages/RecommendationPage.jsx"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
-  const [input, setInput] = useState("");
-  const [results, setResults] = useState([]);
+export default function IndexPage() {
+  const router = useRouter();
 
-  const handleSubmit = async () => {
-    const res = await fetch("/api/recommend", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_input: input }),
-    });
+  useEffect(() => {
+    router.push("/login");
+  }, [router]);
 
-    const data = await res.json();
-    console.log("DEBUG response from API:", data);
-    setResults(data);
-  };
-
-  return (
-    <RecommendationPage/> 
-
-  );
+  return null;
 }

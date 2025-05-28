@@ -17,14 +17,18 @@ export default function RegisterPage() {
     if (password !== confirmPassword) return setError("Passwords do not match");
 
     const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password, confirmPassword })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, confirmPassword })
     });
 
+    if (!res.ok) {
+        const errorText = await res.text();
+        return setError("Signup failed: " + errorText);
+    }
+
     const data = await res.json();
-    if (res.ok) window.location.href = "/questionnare";
-    else setError(data.message);
+    window.location.href = "/questionnaire";
   };
 
   return (
