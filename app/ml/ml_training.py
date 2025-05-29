@@ -24,7 +24,7 @@ import os
 random.seed(42)
 np.random.seed(42)
 
-file_path = 'webtoon_originals_en.csv'
+file_path = './webtoon_originals_en.csv'
 df = pd.read_csv(file_path)
 df = df[['title', 'genre', 'authors', 'subscribers', 'views', 'likes', 'rating', 'synopsis']].dropna()
 
@@ -144,3 +144,26 @@ def hybrid_recommendation(user_id, input_titles, top_n=10):
 
 #     for i, rec in enumerate(rekomendasi, 1):
 #         print(f"{i}. {rec}")
+
+# Save model
+import pickle
+import numpy as np
+
+# Save model LightFM
+with open("model.pkl", "wb") as f:
+    pickle.dump(model, f)
+
+# Save top_items DataFrame
+with open("top_items.pkl", "wb") as f:
+    pickle.dump(top_items, f)
+
+# Save item features used during training
+with open("item_features.pkl", "wb") as f:
+    pickle.dump(item_features, f)
+
+# Save BERT-style synopsis embeddings
+np.save("synopsis_embeddings.npy", synopsis_embeddings)
+
+# Save processed DataFrame as CSV
+df.to_csv("webtoon_processed.csv", index=False)
+

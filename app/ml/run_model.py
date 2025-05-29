@@ -1,44 +1,66 @@
 import sys
 import pandas as pd
+import numpy as np
+import pickle
 import json
 import re
+from lightfm import LightFM
 
+# Preprocessing Function 
 def clean_text(text):
     text = str(text).lower()
     text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return re.sub(r'\s+', ' ', text).strip()
 
-def recommend_by_genres(input_titles, top_n=10):
-    df = pd.read_csv("./webtoon_originals_en.csv")
-    df.dropna(subset=['title', 'genre'], inplace=True)
-    df['title_clean'] = df['title'].apply(clean_text)
-    df['genre_clean'] = df['genre'].apply(clean_text)
+# Load Data & Model 
+df = pd.read_csv("webtoon_processed.csv")
+with open("model.pkl", "rb") as f:
+    model = pickle.load(f)
+with open("top_items.pkl", "rb") as f:
+    top_items = pickle.load(f)
+with open("item_features.pkl", "rb") as f:
+    item_features = pickle.load(f)
+synopsis_embeddings = np.load("synopsis_embeddings.npy")
 
-    cleaned_titles = [clean_text(t) for t in input_titles]
+# Content-Based (Cold Start) 
+def content_based_recommendation(input_titles, top_n=10):
+    idx_inputs = [top_items[top_items['title'] == t].index[0] for t in input_titles if t in top_items['title'].values]
+    if not idx_inputs:
+        return []
+    input_vectors = synopsis_embeddings[idx_inputs]
+    avg_vector = np.mean(input_vectors, axis=0).reshape(1, -1)
+    similarities = np.dot(synopsis_embeddings, avg_vector.T).flatten()
+    for idx in idx_inputs:
+        similarities[idx] = -1  # skip self
+    top_indices = np.argsort(-similarities)[:top_n]
+    return df.iloc[top_indices][['title', 'genre', 'authors', 'rating', 'synopsis']].to_dict(orient="records")
 
-    # Cari genre semua judul input, bisa gabungkan genre yg muncul
-    genres_found = set()
-    for ct in cleaned_titles:
-        matches = df[df['title_clean'].str.contains(ct)]
-        if not matches.empty:
-            # ambil semua genre dari matches
-            genres_found.update(matches['genre_clean'].tolist())
+# Hybrid (LightFM + content) 
+def hybrid_recommendation(input_titles, top_n=10):
+    item_labels = list(top_items['title'])
+    idx_inputs = [item_labels.index(t) for t in input_titles if t in item_labels]
+    if not idx_inputs:
+        return []
+    
+    user_id = 0  # default user
+    scores = model.predict(user_ids=user_id, item_ids=np.arange(len(item_labels)), item_features=item_features)
+    for idx in idx_inputs:
+        scores[idx] = -np.inf  # exclude already liked
+    top_items_idx = np.argsort(-scores)[:top_n]
+    return df.iloc[top_items_idx][['title', 'genre', 'authors', 'rating', 'synopsis']].to_dict(orient="records")
 
-    if not genres_found:
-        return {"message": "No matching webtoon titles found"}
-
-    # Filter rekomendasi berdasar genre yang ditemukan
-    genre_pattern = '|'.join(genres_found)  # regex OR
-    recommendations = df[df['genre_clean'].str.contains(genre_pattern)].head(top_n)
-
-    return recommendations[['title', 'genre', 'authors', 'rating', 'synopsis']].to_dict(orient='records')
-
+# Entry Point 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(json.dumps({"message": "No titles provided"}))
         sys.exit()
 
-    # Terima input multiple titles dipisah '*'
     titles_input = sys.argv[1].split('*')
-    result = recommend_by_genres(titles_input)
+    cleaned_input = [clean_text(t) for t in titles_input]
+
+    if len(cleaned_input) < 3:
+        result = content_based_recommendation(cleaned_input)
+    else:
+        result = hybrid_recommendation(cleaned_input)
+
     print(json.dumps(result))

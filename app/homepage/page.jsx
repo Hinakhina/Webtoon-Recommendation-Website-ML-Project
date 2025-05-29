@@ -47,30 +47,33 @@ export default function Homepage() {
   }, [userId, router]);
 
   const handleSearch = async () => {
-  if (!searchInput.trim()) return;
+    if (!searchInput.trim()) return;
 
-  try {
-    const res = await fetch("/api/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: searchInput, userId }),  // kirim userId juga
-    });
+    setSearchLoading(true); // TAMBAHKAN INI
+    setError(""); // Reset error
 
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: searchInput, userId }),
+      });
 
-    if (!res.ok) {
-      alert(data.message || "Webtoon not found");
-      return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Webtoon not found");
+        return;
+      }
+
+      setRecommendedWebtoons(data);
+    } catch (err) {
+      console.error("Search failed:", err);
+      alert("Search failed. Please try again.");
+    } finally {
+      setSearchLoading(false); // TAMBAHKAN INI
     }
-
-    setRecommendedWebtoons(data);
-  } catch (err) {
-    console.error("Search failed:", err);
-    alert("Search failed. Please try again.");
-  }
-};
-
-
+  };
   return (
     <div>
       <header>
