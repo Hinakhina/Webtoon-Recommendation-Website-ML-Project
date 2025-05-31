@@ -1,66 +1,83 @@
+# run_model.py
 import sys
 import pandas as pd
 import numpy as np
 import pickle
 import json
 import re
-from lightfm import LightFM
+import os
+import pymysql
 
-# Preprocessing Function 
-def clean_text(text):
-    text = str(text).lower()
-    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
-    return re.sub(r'\s+', ' ', text).strip()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Load Data & Model 
-df = pd.read_csv("webtoon_processed.csv")
-with open("model.pkl", "rb") as f:
+# Load serialized model components
+with open(os.path.join(BASE_DIR, "best_webtoon_model.pkl"), "rb") as f:
     model = pickle.load(f)
-with open("top_items.pkl", "rb") as f:
+with open(os.path.join(BASE_DIR, "top_items.pkl"), "rb") as f:
     top_items = pickle.load(f)
-with open("item_features.pkl", "rb") as f:
+with open(os.path.join(BASE_DIR, "item_features.pkl"), "rb") as f:
     item_features = pickle.load(f)
-synopsis_embeddings = np.load("synopsis_embeddings.npy")
+synopsis_embeddings = np.load(os.path.join(BASE_DIR, "synopsis_embeddings.npy"))
 
-# Content-Based (Cold Start) 
-def content_based_recommendation(input_titles, top_n=10):
-    idx_inputs = [top_items[top_items['title'] == t].index[0] for t in input_titles if t in top_items['title'].values]
+def get_history_titles(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT title FROM search_history 
+        WHERE user_id = %s
+    """, (user_id,))
+    titles = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return titles
+
+
+def get_titles_from_input(input_arg):
+    # user_id numeric? → use DB, else → use genre input
+    if input_arg.isdigit():
+        return get_history_titles(int(input_arg))
+    else:
+        return input_arg.split('*')
+
+def content_based_recommendation(inputs, top_n=10):
+    idx_inputs = [top_items[top_items['title'] == t].index[0] for t in inputs if t in top_items['title'].values]
     if not idx_inputs:
-        return []
+        pattern = '|'.join(inputs)
+        matched = top_items[top_items['genre'].str.contains(pattern, case=False, na=False)]
+        if matched.empty:
+            return []
+        idx_inputs = matched.index.tolist()
     input_vectors = synopsis_embeddings[idx_inputs]
     avg_vector = np.mean(input_vectors, axis=0).reshape(1, -1)
     similarities = np.dot(synopsis_embeddings, avg_vector.T).flatten()
     for idx in idx_inputs:
-        similarities[idx] = -1  # skip self
+        similarities[idx] = -1
     top_indices = np.argsort(-similarities)[:top_n]
-    return df.iloc[top_indices][['title', 'genre', 'authors', 'rating', 'synopsis']].to_dict(orient="records")
+    return top_items.iloc[top_indices].to_dict(orient="records")
 
-# Hybrid (LightFM + content) 
-def hybrid_recommendation(input_titles, top_n=10):
+def hybrid_recommendation(user_id, input_titles, top_n=10):
+    user_idx = 0
     item_labels = list(top_items['title'])
     idx_inputs = [item_labels.index(t) for t in input_titles if t in item_labels]
     if not idx_inputs:
         return []
-    
-    user_id = 0  # default user
-    scores = model.predict(user_ids=user_id, item_ids=np.arange(len(item_labels)), item_features=item_features)
+    scores = model.predict(user_ids=user_idx, item_ids=np.arange(len(item_labels)), item_features=item_features)
     for idx in idx_inputs:
-        scores[idx] = -np.inf  # exclude already liked
+        scores[idx] = -np.inf
     top_items_idx = np.argsort(-scores)[:top_n]
-    return df.iloc[top_items_idx][['title', 'genre', 'authors', 'rating', 'synopsis']].to_dict(orient="records")
+    return top_items.iloc[top_items_idx].to_dict(orient="records")
 
-# Entry Point 
+# MAIN
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print(json.dumps({"message": "No titles provided"}))
-        sys.exit()
+        print(json.dumps([]))
+        sys.exit(1)
 
-    titles_input = sys.argv[1].split('*')
-    cleaned_input = [clean_text(t) for t in titles_input]
+    input_arg = sys.argv[1]
+    input_titles = get_titles_from_input(input_arg)
 
-    if len(cleaned_input) < 3:
-        result = content_based_recommendation(cleaned_input)
+    if len(input_titles) < 3:
+        result = content_based_recommendation(input_titles)
     else:
-        result = hybrid_recommendation(cleaned_input)
+        result = hybrid_recommendation(input_arg, input_titles)
 
     print(json.dumps(result))

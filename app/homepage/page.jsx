@@ -29,11 +29,13 @@ export default function Homepage() {
           body: JSON.stringify({ userId }),
         });
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch recommendations");
+        const data = await res.json();
+
+        if (!Array.isArray(data)) {
+          setError(data.error || "Unexpected response from model");
+          return;
         }
 
-        const data = await res.json();
         setRecommendedWebtoons(data);
       } catch (err) {
         console.error("Error fetching recommendations:", err);
@@ -49,8 +51,8 @@ export default function Homepage() {
   const handleSearch = async () => {
     if (!searchInput.trim()) return;
 
-    setSearchLoading(true); // TAMBAHKAN INI
-    setError(""); // Reset error
+    setSearchLoading(true);
+    setError("");
 
     try {
       const res = await fetch("/api/search", {
@@ -61,19 +63,20 @@ export default function Homepage() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.message || "Webtoon not found");
+      if (!res.ok || !Array.isArray(data)) {
+        setError(data.error || "Webtoon not found");
         return;
       }
 
       setRecommendedWebtoons(data);
     } catch (err) {
       console.error("Search failed:", err);
-      alert("Search failed. Please try again.");
+      setError("Search failed. Please try again.");
     } finally {
-      setSearchLoading(false); // TAMBAHKAN INI
+      setSearchLoading(false);
     }
   };
+
   return (
     <div>
       <header>
