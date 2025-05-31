@@ -32,14 +32,14 @@ export default function Homepage() {
         const data = await res.json();
 
         if (!Array.isArray(data)) {
-          setError(data.error || "Unexpected response from model");
+          setError(data.message || "Unexpected response from model.");
           return;
         }
 
         setRecommendedWebtoons(data);
       } catch (err) {
-        console.error("Error fetching recommendations:", err);
-        setError("Something went wrong. Please try again later.");
+        console.error("Recommendation fetch error:", err);
+        setError("Failed to fetch recommendations.");
       } finally {
         setLoading(false);
       }
@@ -63,14 +63,19 @@ export default function Homepage() {
 
       const data = await res.json();
 
+      if (res.status === 404) {
+        setError("No matching titles found in our database.");
+        return;
+      }
+
       if (!res.ok || !Array.isArray(data)) {
-        setError(data.error || "Webtoon not found");
+        setError(data.message || "Webtoon not found.");
         return;
       }
 
       setRecommendedWebtoons(data);
     } catch (err) {
-      console.error("Search failed:", err);
+      console.error("Search error:", err);
       setError("Search failed. Please try again.");
     } finally {
       setSearchLoading(false);
@@ -95,7 +100,9 @@ export default function Homepage() {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
               />
-              <button onClick={handleSearch}>🔍</button>
+              <button onClick={handleSearch} disabled={searchLoading}>
+                🔍
+              </button>
             </div>
           </nav>
         </div>
@@ -108,6 +115,8 @@ export default function Homepage() {
           <p>Loading...</p>
         ) : error ? (
           <p style={{ color: "red" }}>{error}</p>
+        ) : recommendedWebtoons.length === 0 ? (
+          <p>No recommendations found.</p>
         ) : (
           <div className="results-grid">
             {recommendedWebtoons.map((webtoon, i) => (
