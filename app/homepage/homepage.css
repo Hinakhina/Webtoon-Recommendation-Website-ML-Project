@@ -1,0 +1,178 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #2d3250;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 80%;
+    margin: 0 auto;
+    /* filter: blur(30px); */
+
+}
+
+
+
+/* HEADER */
+
+#name{
+    margin: 20px;
+    font-family: 'Lucida Sans Regular';
+    color: #f9b17a;
+    text-align: center;
+}
+
+#tagline{
+    margin :10px;
+    font-family: 'Lucida Sans';
+    color:#ffffff;
+    /* background-color: #f9b17a; */
+    text-align: center;
+    border-radius: 20px;
+}
+
+/* NAVBARRR */
+.topnav {
+    /* background-color: #fff6ff; */
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    list-style: none;
+    justify-content: center;
+    flex-direction: row;
+    gap: 230px;
+    display: flex;
+    padding: 20px;
+    /* text-decoration: none; */
+    /* color: #f9b17a; */
+    /* margin: 20px; */
+
+}
+
+
+
+/* CONTENT */
+.active{
+    font-family: 'Lucida Sans';
+    text-align: center;
+    margin: 10px;
+    padding: 10px;
+    color: #f9b17a;
+    border-radius: 20px;
+    text-decoration: none;
+    
+    /* background-image: url("Assets/PurpleBackground-_HTML.jpg"); */
+}
+
+
+.login{
+    font-family: 'Lucida Sans';
+    text-align: center;
+    margin: 10px;
+    padding: 10px;
+    color: #f9b17a;
+    border-radius: 20px;
+    text-decoration: none;
+    
+    /* background-image: url("Assets/PurpleBackground-_HTML.jpg"); */
+}
+
+.register{
+    font-family: 'Lucida Sans';
+    text-align: center;
+    margin: 10px;
+    padding: 10px;
+    color: #f9b17a;
+    /* border-radius: 20px; */
+    text-decoration: none;
+    
+    /* background-image: url("Assets/PurpleBackground-_HTML.jpg"); */
+}
+
+.search{
+    font-family: 'Lucida Sans';
+    text-align: left;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 20px;
+    text-decoration: none;
+    
+    /* background-image: url("Assets/PurpleBackground-_HTML.jpg"); */
+}
+
+.recommendation-section{
+    margin: 50px;
+    text-align: left;
+    font-family: 'Lucida Sans';
+    color: #f9b17a;
+}
+
+h3{
+    text-decoration: underline;
+}
+
+.webtoon-card{
+    margin: 10px;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    color: #ffffff;
+    background-color: #748ee4ca;
+    border-radius: 20px;
+}
+
+
+/* .search-button{
+    border-radius: 30px;
+} */
+
+/* for tablet & desktop */
+@media screen and (max-width: 1200px) {
+
+    .container {
+        width: 90%;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .topnav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 50px;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    nav ul li {
+        margin-bottom: 10px;
+    }
+
+
+}
+
+/* for mobile  */
+@media screen and (max-width: 768px) {
+
+    .container {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    header {
+        text-align: center;
+    }
+
+    nav ul {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    nav ul li {
+        margin-bottom: 5px;
+    }
+
+}
