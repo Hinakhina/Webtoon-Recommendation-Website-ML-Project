@@ -75,7 +75,9 @@ def content_based_recommendation(input_titles, genres=None, top_n=10):
             genre_matches = df[df['genre'].str.lower().str.contains(genre.lower())]
             genre_idx = [find_title_index(t) for t in genre_matches['title']]
             genre_idx = [i for i in genre_idx if i is not None]
-            genre_vectors.extend(synopsis_embeddings[i] for i in genre_idx)
+            valid_genre_idx = [i for i in genre_idx if i < synopsis_embeddings.shape[0]]
+            genre_vectors.extend(synopsis_embeddings[i] for i in valid_genre_idx)
+
 
     if genre_vectors:
         genre_vectors = np.vstack(genre_vectors)
@@ -122,11 +124,18 @@ if __name__ == "__main__":
     genre_prefs = get_user_genres(user_id)
     combined_titles = list(dict.fromkeys(title_history))  # full history
 
+    sys.stderr.write(f"[INFO] Titles from DB: {title_history}\n")
+    sys.stderr.write(f"[INFO] Titles from Input: {input_titles}\n")
+    sys.stderr.write(f"[INFO] Genres from DB: {genre_prefs}\n")
+
+
     search_result = content_based_recommendation(input_titles, genres=genre_prefs)
 
     if len(combined_titles) < 3:
+        sys.stderr.write("[INFO] Mode: Content-based (genre + title)\n")
         history_result = content_based_recommendation(combined_titles, genres=genre_prefs)
     else:
+        sys.stderr.write("[INFO] Mode: Hybrid\n")
         history_result = hybrid_recommendation(user_id, combined_titles)
 
     output = {

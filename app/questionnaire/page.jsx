@@ -4,12 +4,27 @@ import { useUser } from "../../src/context/userContext";
 import { useRouter } from "next/navigation";
 import "./questionnaire.css";
 
-const genres = [
-  "Action", "Adventure", "Comedy", "Drama", "Fantasy",
-  "Horror", "Slice of Life", "Romance", "Sci-Fi", "Thriller",
-  "Superhero", "Historical", "Sports", "Supernatural", "Graphic Novel",
-  "Informative", "Heartwarming"
-];
+// questionnaire.jsx
+const genreMap = {
+  "Action": "ACTION",
+  "Comedy": "COMEDY",
+  "Drama": "DRAMA",
+  "Fantasy": "FANTASY",
+  "Horror": "HORROR",
+  "Slice of Life": "SLICE_OF_LIFE",
+  "Romance": "ROMANCE",
+  "Sci-Fi": "SF",
+  "Thriller": "THRILLER",
+  "Superhero": "SUPER_HERO",
+  "Historical": "HISTORICAL",
+  "Sports": "SPORTS",
+  "Supernatural": "SUPERNATURAL",
+  "Heartwarming": "HEARTWARMING",
+  "Mystery": "MYSTERY",
+  "Tiptoon": "TIPTOON"
+};
+
+const genres = Object.keys(genreMap);
 
 export default function Questionnaire() {
   const router = useRouter();
@@ -44,11 +59,13 @@ export default function Questionnaire() {
       return;
     }
 
+    const genresForDb = selectedGenres.map(g => genreMap[g]);
+
     try {
       const res = await fetch("/api/user/genre", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, genres: selectedGenres }),
+        body: JSON.stringify({ userId, genres: genresForDb }),
       });
 
       if (!res.ok) {
