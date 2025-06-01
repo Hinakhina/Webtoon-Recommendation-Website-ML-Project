@@ -44,3 +44,17 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
    - Go to `Import` tab
    - Choose `database/webtoon_db.sql` from this repo
    - Click `Go`
+
+## To reset user_id after clearing database:
+ALTER TABLE users AUTO_INCREMENT = 1;
+ALTER TABLE search_history AUTO_INCREMENT = 1;
+ALTER TABLE user_genres AUTO_INCREMENT = 1;
+
+
+## If pip install lightfm is not working:
+Install Microsoft Visual C++
+pip install lightfm again in the vscode project terminal (in the ml folder)
+
+
+## Train Model Code:
+https://colab.research.google.com/drive/1UOBSMICdV_H0a1Ntv75CN7MKFsQPJPEM?usp=sharing
