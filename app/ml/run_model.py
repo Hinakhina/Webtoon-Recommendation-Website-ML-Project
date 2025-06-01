@@ -136,9 +136,12 @@ def content_based_recommendation(input_titles, genres=None, top_n=10, user_id=No
         sys.stderr.write("[WARN] No vectors found for input.\n")
         return []
 
-    if idx_inputs and genre_vectors != []:
-        avg_vector = (0.7 * np.mean(synopsis_embeddings[idx_inputs], axis=0)) + (0.3 * np.mean(genre_vectors, axis=0))
+    if len(idx_inputs) > 0 and len(genre_vectors) > 0:
+        input_part = synopsis_embeddings[idx_inputs]
+        genre_part = np.vstack(genre_vectors)
+        avg_vector = (0.7 * np.mean(input_part, axis=0)) + (0.3 * np.mean(genre_part, axis=0))
     else:
+        input_vectors = synopsis_embeddings[idx_inputs] if idx_inputs else np.array(genre_vectors)
         avg_vector = np.mean(input_vectors, axis=0)
     avg_vector = avg_vector.reshape(1, -1)
 
@@ -161,6 +164,12 @@ def hybrid_recommendation(user_id, input_titles, top_n=10):
         return []
 
     proxy_id = get_proxy_user_id(user_id, input_titles)
+    
+    if proxy_id == "default_user" or f"user_{int(proxy_id)}" not in user_mapping:
+        sys.stderr.write("[WARN] No valid proxy user found. Falling back to content-based.\n")
+        return content_based_recommendation(input_titles, genres=get_user_genres(user_id), user_id=user_id)
+
+    
     key = f"user_{int(proxy_id)}"
     if key not in user_mapping:
         return []
