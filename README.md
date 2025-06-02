@@ -58,3 +58,6 @@ pip install lightfm again in the vscode project terminal (in the ml folder)
 
 ## Train Model Code:
 https://colab.research.google.com/drive/1UOBSMICdV_H0a1Ntv75CN7MKFsQPJPEM?usp=sharing
+
+# Presentation File:
+https://www.canva.com/design/DAGpIPJUyZ0/YlogpwCEXFFR7jrcGCM3aA/view?utm_content=DAGpIPJUyZ0&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h88b3c4ceae
