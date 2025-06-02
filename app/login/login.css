@@ -60,6 +60,7 @@ body {
     opacity: 90%;
     height: 10vh;
     justify-content: center;
+    /* background-color: #545d8f; */
 }
 
 .container-form h3{
@@ -144,7 +145,9 @@ input[type="password"] {
 }
 
 
-
+p{
+    color: white;
+}
 
 
 /* for tablet & desktop */
